@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField
+from wtforms import StringField, SubmitField, FloatField, SelectField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 import requests
 
@@ -22,6 +22,7 @@ Bootstrap(app)
 # CREATE MOVIE TABLE IN DB
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String, unique=False)
     title = db.Column(db.String, unique=True, nullable=False)
     year = db.Column(db.Integer, unique=False)
     description = db.Column(db.String, unique=False)
@@ -39,6 +40,10 @@ with app.app_context():
 class EditForm(FlaskForm):
     rating = FloatField(label='Your rating out of 10', validators=[DataRequired(), NumberRange(min=0, max=10)])
     review = StringField(label='Your review:', validators=[DataRequired()])
+    user = SelectField(label='Your name',
+                       validators=[DataRequired()],
+                       choices=['Amy', 'Chris', 'Grant', 'Luke', 'Sabrina'],
+                       default=2)
     submit = SubmitField(label='Done')
 
 
@@ -48,14 +53,25 @@ class AddForm(FlaskForm):
 
 
 @app.route("/")
-def home():
+def welcome():
     all_movies = db.session.query(Movie).order_by(Movie.rating.desc())
+    user_list = []
+    for movie in all_movies:
+        if movie.user not in user_list:  # no duplicate users
+            user_list.append(movie.user)
+    return render_template('welcome.html', user_list=user_list)
+
+
+@app.route("/display")
+def display():
+    user = flask.request.args.get('user')
+    all_movies = db.session.query(Movie).filter_by(user=user).order_by(Movie.rating.desc())
     count = 1
     for movie in all_movies:
         movie.ranking = count
         db.session.commit()
         count += 1
-    return render_template("index.html", movies=all_movies)
+    return render_template("display.html", movies=all_movies, user=user)
 
 
 @app.route("/add", methods=['POST', 'GET'])
@@ -102,8 +118,9 @@ def edit():
         movie_to_update = Movie.query.get(database_id)
         movie_to_update.rating = form_edit.rating.data
         movie_to_update.review = form_edit.review.data
+        movie_to_update.user = form_edit.user.data
         db.session.commit()
-        return redirect(url_for('home'))
+        return redirect(url_for('display', user=form_edit.user.data))
     return render_template("edit.html", form=form_edit)
 
 
@@ -113,7 +130,7 @@ def delete():
     movie_to_delete = Movie.query.get(database_id)
     db.session.delete(movie_to_delete)
     db.session.commit()
-    return redirect(url_for('home'))
+    return redirect(url_for('display', user=movie_to_delete.user))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,27 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,700">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block title %}Top 10 Movies{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="heading">Top 10 Movies</h1>
+  <p class="description">Choose a collection below.</p>
+    <div class="container">
+     {% for user in user_list: %}
+    <p class="description"><a href="{{ url_for('display', user=user) }}">{{ user }}</a></p>
+    {% endfor %}
+        <p>Don't see your name above? <a href="{{ url_for('add') }}" class="button">Start your own collection!</a></p>
+    </div>
+</div>
+
+
+{% endblock %}

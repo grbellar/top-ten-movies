@@ -7,9 +7,6 @@ from wtforms import StringField, SubmitField, FloatField, SelectField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 import requests
 
-# TODO: nice-to-haves-- 1. add additional users. i.e. could choose 'Grant' or 'Sabrina' collection.
-
-
 # INIT APP and DB
 db = SQLAlchemy()
 app = Flask(__name__)

@@ -6,12 +6,16 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FloatField, SelectField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 import requests
+import os
 
 # INIT APP and DB
 db = SQLAlchemy()
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///movie-database.db"
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+# DATABASE_URL doesn't exist when running locally, so it will default to a sqlite database. When in production,
+# the below code will look for an environment variable called DATABASE_URL which stores the url of the postgres
+# database.
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', "sqlite:///movie-database.db")
 db.init_app(app)
 Bootstrap(app)
 

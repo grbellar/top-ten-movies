@@ -84,7 +84,11 @@ def add():
                                      f'=24245f31c7ac222b4c2c6326fab7e901&query={search_string}')
         response_data = movie_request.json()
         results = response_data['results']
-        return render_template('select.html', all_results=results)
+        if len(results) == 0:
+            is_empty = True
+        else:
+            is_empty = False
+        return render_template('select.html', all_results=results, is_empty=is_empty, search_string=search_string)
     return render_template("add.html", form=form_add)
 
 
